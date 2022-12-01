@@ -1,6 +1,7 @@
 package com.yuk.fuckMiuiThemeManager
 
 import android.view.View
+import android.widget.TextView
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.IXposedHookZygoteInit.StartupParam
@@ -232,6 +233,20 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
                                     val view = param.args[0] as View
                                     view.visibility = View.GONE
                                 }
+                            }
+                        })
+                } catch (t: Throwable) {
+                    XposedBridge.log(t)
+                }
+                try {
+                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.views.DiscountPriceView",
+                        lpparam.classLoader,
+                        "f",
+                        Int::class.javaPrimitiveType,
+                        object : XC_MethodHook() {
+                            override fun afterHookedMethod(param: MethodHookParam) {
+                                val textView = XposedHelpers.getObjectField(param.thisObject, "b") as TextView
+                                textView.text = "免费"
                             }
                         })
                 } catch (t: Throwable) {
