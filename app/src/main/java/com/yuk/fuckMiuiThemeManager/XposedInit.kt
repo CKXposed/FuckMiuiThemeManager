@@ -1,6 +1,7 @@
 package com.yuk.fuckMiuiThemeManager
 
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.TextView
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
@@ -224,13 +225,16 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     val recommendListViewAdapterClass = XposedHelpers.findClassIfExists(
                         "com.android.thememanager.recommend.view.listview.RecommendListViewAdapter", lpparam.classLoader
                     )
-                    XposedHelpers.findAndHookConstructor(baseAdViewHolderClass,
+                    XposedHelpers.findAndHookConstructor(
+                        baseAdViewHolderClass,
                         View::class.java,
                         recommendListViewAdapterClass,
                         object : XC_MethodHook() {
                             override fun afterHookedMethod(param: MethodHookParam) {
                                 if (param.args[0] != null) {
                                     val view = param.args[0] as View
+                                    val params = FrameLayout.LayoutParams(0, 0)
+                                    view.layoutParams = params
                                     view.visibility = View.GONE
                                 }
                             }
