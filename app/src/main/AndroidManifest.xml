@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.yuk.fuckMiuiThemeManager">
 
     <application
-        android:icon="@drawable/ic_launcher"
         android:label="Miui 主题破解"
-        android:supportsRtl="false">
+        android:supportsRtl="false"
+        tools:ignore="MissingApplicationIcon">
         <meta-data
             android:name="xposedscope"
             android:resource="@array/xposed_scope" />
