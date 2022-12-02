@@ -218,30 +218,7 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 } catch (t: Throwable) {
                     XposedBridge.log(t)
                 }
-                try {
-                    val baseAdViewHolderClass = XposedHelpers.findClassIfExists(
-                        "com.android.thememanager.recommend.view.listview.viewholder.BaseAdViewHolder", lpparam.classLoader
-                    )
-                    val recommendListViewAdapterClass = XposedHelpers.findClassIfExists(
-                        "com.android.thememanager.recommend.view.listview.RecommendListViewAdapter", lpparam.classLoader
-                    )
-                    XposedHelpers.findAndHookConstructor(
-                        baseAdViewHolderClass,
-                        View::class.java,
-                        recommendListViewAdapterClass,
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                if (param.args[0] != null) {
-                                    val view = param.args[0] as View
-                                    val params = FrameLayout.LayoutParams(0, 0)
-                                    view.layoutParams = params
-                                    view.visibility = View.GONE
-                                }
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
+
                 try {
                     XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.views.DiscountPriceView",
                         lpparam.classLoader,
@@ -256,9 +233,43 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 } catch (t: Throwable) {
                     XposedBridge.log(t)
                 }
+                val recommendListViewAdapterClass = XposedHelpers.findClassIfExists(
+                    "com.android.thememanager.recommend.view.listview.RecommendListViewAdapter", lpparam.classLoader
+                )
+                val pureAdBannerViewHolderClass = XposedHelpers.findClassIfExists(
+                    "com.android.thememanager.recommend.view.listview.viewholder.PureAdBannerViewHolder", lpparam.classLoader
+                )
+                val selfFontItemAdViewHolderClass = XposedHelpers.findClassIfExists(
+                    "com.android.thememanager.recommend.view.listview.viewholder.SelfFontItemAdViewHolder", lpparam.classLoader
+                )
+                val selfRingtoneItemAdViewHolderClass = XposedHelpers.findClassIfExists(
+                    "com.android.thememanager.recommend.view.listview.viewholder.SelfRingtoneItemAdViewHolder", lpparam.classLoader
+                )
+                hook(pureAdBannerViewHolderClass, recommendListViewAdapterClass)
+                hook(selfFontItemAdViewHolderClass, recommendListViewAdapterClass)
+                hook(selfRingtoneItemAdViewHolderClass, recommendListViewAdapterClass)
             }
 
-            else -> return
+            else -> {
+                return
+            }
+        }
+    }
+
+    private fun hook(clazz: Class<*>, args: Class<*>) {
+        try {
+            XposedHelpers.findAndHookConstructor(clazz, View::class.java, args, object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    if (param.args[0] != null) {
+                        val view = param.args[0] as View
+                        val params = FrameLayout.LayoutParams(0, 0)
+                        view.layoutParams = params
+                        view.visibility = View.GONE
+                    }
+                }
+            })
+        } catch (t: Throwable) {
+            XposedBridge.log(t)
         }
     }
 }

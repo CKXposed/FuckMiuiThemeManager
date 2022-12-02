@@ -11,8 +11,8 @@ android {
         applicationId = "com.yuk.fuckMiuiThemeManager"
         minSdk = 28
         targetSdk = 33
-        versionCode = 13
-        versionName = "1.3"
+        versionCode = 14
+        versionName = "1.4"
     }
     buildTypes {
         release {
