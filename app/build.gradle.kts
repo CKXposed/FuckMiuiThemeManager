@@ -11,8 +11,8 @@ android {
         applicationId = "com.yuk.fuckMiuiThemeManager"
         minSdk = 28
         targetSdk = 33
-        versionCode = 14
-        versionName = "1.4"
+        versionCode = 15
+        versionName = "1.5"
     }
     buildTypes {
         release {
@@ -44,5 +44,6 @@ android {
 
 dependencies {
     compileOnly("de.robv.android.xposed:api:82")
+    implementation("com.github.kyuubiran:EzXHelper:1.0.3")
     implementation(files("libs/miui-framework.jar"))
 }

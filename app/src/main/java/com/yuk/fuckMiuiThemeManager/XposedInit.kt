@@ -3,22 +3,31 @@ package com.yuk.fuckMiuiThemeManager
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
+import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
+import com.github.kyuubiran.ezxhelper.utils.findAllMethods
+import com.github.kyuubiran.ezxhelper.utils.findConstructor
+import com.github.kyuubiran.ezxhelper.utils.findMethod
+import com.github.kyuubiran.ezxhelper.utils.getObjectAs
+import com.github.kyuubiran.ezxhelper.utils.hookAfter
+import com.github.kyuubiran.ezxhelper.utils.loadClass
+import com.github.kyuubiran.ezxhelper.utils.putObject
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.IXposedHookZygoteInit.StartupParam
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_LoadPackage
+import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import miui.drm.DrmManager
+
+private const val TAG = "FuckThemeManager"
 
 class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     override fun initZygote(startupParam: StartupParam) {
         try {
-            XposedBridge.hookAllMethods(DrmManager::class.java, "isLegal", object : XC_MethodHook() {
+            XposedBridge.hookAllMethods(DrmManager::class.java, "isRightsFileLegal", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    param.result = DrmManager.DrmResult.DRM_SUCCESS
+                    param.result = true
                 }
             })
         } catch (t: Throwable) {
@@ -33,15 +42,7 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
         } catch (t: Throwable) {
             XposedBridge.log(t)
         }
-        try {
-            XposedBridge.hookAllMethods(DrmManager::class.java, "isRightsFileLegal", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    param.result = true
-                }
-            })
-        } catch (t: Throwable) {
-            XposedBridge.log(t)
-        }
+
         try {
             XposedBridge.hookAllMethods(DrmManager::class.java, "isSupportAd", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
@@ -62,192 +63,77 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
     }
 
-    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+    override fun handleLoadPackage(lpparam: LoadPackageParam) {
+        EzXHelperInit.setLogTag(TAG)
+        EzXHelperInit.setToastTag(TAG)
+        EzXHelperInit.initHandleLoadPackage(lpparam)
         when (lpparam.packageName) {
             "com.android.thememanager" -> {
+                EzXHelperInit.setEzClassLoader(lpparam.classLoader)
                 try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.Resource",
-                        lpparam.classLoader,
-                        "isAuthorizedResource",
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.result = true
-                            }
-                        })
+                    findMethod("com.android.thememanager.controller.online.c") {
+                        parameterCount == 1 && returnType == DrmManager.DrmResult::class.java
+                    }.hookAfter {
+                        it.result = DrmManager.DrmResult.DRM_SUCCESS
+                    }
                 } catch (t: Throwable) {
                     XposedBridge.log(t)
                 }
                 try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.Resource",
-                        lpparam.classLoader,
-                        "isProductBought",
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.result = true
-                            }
-                        })
+                    findAllMethods("com.android.thememanager.detail.theme.model.OnlineResourceDetail") {
+                        name == "toResource"
+                    }.hookAfter {
+                        it.thisObject.putObject("bought", true)
+                    }
                 } catch (t: Throwable) {
                     XposedBridge.log(t)
                 }
                 try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.Resource",
-                        lpparam.classLoader,
-                        "setProductBought",
-                        Boolean::class.java,
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.args[0] = true
-                            }
-                        })
+                    findMethod("com.android.thememanager.basemodule.ad.model.AdInfoResponse") {
+                        name == "isAdValid" && parameterCount == 1
+                    }.hookAfter {
+                        it.result = false
+                    }
                 } catch (t: Throwable) {
                     XposedBridge.log(t)
                 }
                 try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.Resource",
-                        lpparam.classLoader,
-                        "setProductPrice",
-                        Int::class.java,
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.args[0] = 0
-                            }
-                        })
+                    findMethod("com.android.thememanager.basemodule.views.DiscountPriceView") {
+                        name == "f" && parameterCount == 1
+                    }.hookAfter {
+                        it.thisObject.getObjectAs<TextView>("b").text = "免费"
+                    }
                 } catch (t: Throwable) {
                     XposedBridge.log(t)
                 }
-                try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.Resource",
-                        lpparam.classLoader,
-                        "getProductPrice",
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.result = 0
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
-                try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.Resource",
-                        lpparam.classLoader,
-                        "isProductBought",
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.result = true
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
-                try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.ResourceOnlineProperties",
-                        lpparam.classLoader,
-                        "setProductPrice",
-                        Int::class.java,
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.args[0] = 0
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
-                try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.ResourceOnlineProperties",
-                        lpparam.classLoader,
-                        "getProductPrice",
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.result = 0
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
-                try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.ResourceOnlineProperties",
-                        lpparam.classLoader,
-                        "isProductBought",
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.result = true
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
-                try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.resource.model.ResourceOnlineProperties",
-                        lpparam.classLoader,
-                        "setProductBought",
-                        Boolean::class.java,
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.args[0] = true
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
-                try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.detail.theme.model.OnlineResourceDetail",
-                        lpparam.classLoader,
-                        "toResource",
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                XposedHelpers.setObjectField(param.thisObject, "productPrice", 0)
-                                XposedHelpers.setObjectField(param.thisObject, "originPrice", 0)
-                                XposedHelpers.setObjectField(param.thisObject, "bought", true)
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
-                try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.ad.model.AdInfoResponse",
-                        lpparam.classLoader,
-                        "isAdValid",
-                        XposedHelpers.findClass(
-                            "com.android.thememanager.basemodule.ad.model.AdInfo", lpparam.classLoader
-                        ),
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                param.result = false
-                            }
-                        })
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
-                }
+                hook(loadClass("com.android.thememanager.recommend.view.listview.viewholder.PureAdBannerViewHolder"))
+                hook(loadClass("com.android.thememanager.recommend.view.listview.viewholder.SelfFontItemAdViewHolder"))
+                hook(loadClass("com.android.thememanager.recommend.view.listview.viewholder.SelfRingtoneItemAdViewHolder"))
+            }
 
+            "com.miui.personalassistant" -> {
+                EzXHelperInit.setEzClassLoader(lpparam.classLoader)
                 try {
-                    XposedHelpers.findAndHookMethod("com.android.thememanager.basemodule.views.DiscountPriceView",
-                        lpparam.classLoader,
-                        "f",
-                        Int::class.javaPrimitiveType,
-                        object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                val textView = XposedHelpers.getObjectField(param.thisObject, "b") as TextView
-                                textView.text = "免费"
-                            }
-                        })
+                    "com.miui.personalassistant.picker.business.detail.bean.PickerDetailResponse".findClass().hookAfterAllConstructors {
+                        it.thisObject.setBooleanField("isPay", true)
+                        it.thisObject.setBooleanField("isBought", true)
+                        it.thisObject.setBooleanField("isAuthorityPass", true)
+                        it.thisObject.setLongField("priceInCent", 0L)
+                        it.thisObject.setObjectField("authorityResult", DrmManager.DrmResult.DRM_SUCCESS)
+                    }
                 } catch (t: Throwable) {
                     XposedBridge.log(t)
                 }
-                val recommendListViewAdapterClass = XposedHelpers.findClassIfExists(
-                    "com.android.thememanager.recommend.view.listview.RecommendListViewAdapter", lpparam.classLoader
-                )
-                val pureAdBannerViewHolderClass = XposedHelpers.findClassIfExists(
-                    "com.android.thememanager.recommend.view.listview.viewholder.PureAdBannerViewHolder", lpparam.classLoader
-                )
-                val selfFontItemAdViewHolderClass = XposedHelpers.findClassIfExists(
-                    "com.android.thememanager.recommend.view.listview.viewholder.SelfFontItemAdViewHolder", lpparam.classLoader
-                )
-                val selfRingtoneItemAdViewHolderClass = XposedHelpers.findClassIfExists(
-                    "com.android.thememanager.recommend.view.listview.viewholder.SelfRingtoneItemAdViewHolder", lpparam.classLoader
-                )
-                hook(pureAdBannerViewHolderClass, recommendListViewAdapterClass)
-                hook(selfFontItemAdViewHolderClass, recommendListViewAdapterClass)
-                hook(selfRingtoneItemAdViewHolderClass, recommendListViewAdapterClass)
+                try {
+                    ("com.miui.personalassistant.picker.business.detail.bean.PickerDetailResponseWrapper").findClass().hookAfterAllConstructors {
+                        it.thisObject.setBooleanField("isPay", true)
+                        it.thisObject.setBooleanField("isBought", true)
+                        it.thisObject.setBooleanField("isStartMaMlDownload", true)
+                        it.thisObject.setLongField("priceInCent", 0L)
+                    }
+                } catch (t: Throwable) {
+                    XposedBridge.log(t)
+                }
             }
 
             else -> {
@@ -256,20 +142,21 @@ class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
     }
 
-    private fun hook(clazz: Class<*>, args: Class<*>) {
+    private fun hook(clazz: Class<*>) {
         try {
-            XposedHelpers.findAndHookConstructor(clazz, View::class.java, args, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    if (param.args[0] != null) {
-                        val view = param.args[0] as View
-                        val params = FrameLayout.LayoutParams(0, 0)
-                        view.layoutParams = params
-                        view.visibility = View.GONE
-                    }
+            findConstructor(clazz) {
+                parameterTypes.size == 2
+            }.hookAfter {
+                if (it.args[0] != null) {
+                    val view = it.args[0] as View
+                    val params = FrameLayout.LayoutParams(0, 0)
+                    view.layoutParams = params
+                    view.visibility = View.GONE
                 }
-            })
+            }
         } catch (t: Throwable) {
             XposedBridge.log(t)
         }
     }
+
 }
