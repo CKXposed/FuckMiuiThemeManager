@@ -12,8 +12,6 @@ import com.github.kyuubiran.ezxhelper.utils.hookAfter
 import com.github.kyuubiran.ezxhelper.utils.loadClass
 import com.github.kyuubiran.ezxhelper.utils.putObject
 import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.IXposedHookZygoteInit
-import de.robv.android.xposed.IXposedHookZygoteInit.StartupParam
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
@@ -21,53 +19,63 @@ import miui.drm.DrmManager
 
 private const val TAG = "FuckThemeManager"
 
-class XposedInit : IXposedHookLoadPackage, IXposedHookZygoteInit {
-
-    override fun initZygote(startupParam: StartupParam) {
-        try {
-            XposedBridge.hookAllMethods(DrmManager::class.java, "isRightsFileLegal", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    param.result = true
-                }
-            })
-        } catch (t: Throwable) {
-            XposedBridge.log(t)
-        }
-        try {
-            XposedBridge.hookAllMethods(DrmManager::class.java, "isPermanentRights", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    param.result = true
-                }
-            })
-        } catch (t: Throwable) {
-            XposedBridge.log(t)
-        }
-
-        try {
-            XposedBridge.hookAllMethods(DrmManager::class.java, "isSupportAd", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    param.result = false
-                }
-            })
-        } catch (t: Throwable) {
-            XposedBridge.log(t)
-        }
-        try {
-            XposedBridge.hookAllMethods(DrmManager::class.java, "setSupportAd", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    param.args[1] = false
-                }
-            })
-        } catch (t: Throwable) {
-            XposedBridge.log(t)
-        }
-    }
+class XposedInit : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         EzXHelperInit.setLogTag(TAG)
         EzXHelperInit.setToastTag(TAG)
         EzXHelperInit.initHandleLoadPackage(lpparam)
         when (lpparam.packageName) {
+            "android" -> {
+                EzXHelperInit.setEzClassLoader(lpparam.classLoader)
+                try {
+                    XposedBridge.hookAllMethods(DrmManager::class.java, "isLegal", object : XC_MethodHook() {
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            param.result = DrmManager.DrmResult.DRM_SUCCESS
+                        }
+                    })
+                } catch (t: Throwable) {
+                    XposedBridge.log(t)
+                }
+                try {
+                    XposedBridge.hookAllMethods(DrmManager::class.java, "isRightsFileLegal", object : XC_MethodHook() {
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            param.result = true
+                        }
+                    })
+                } catch (t: Throwable) {
+                    XposedBridge.log(t)
+                }
+                try {
+                    XposedBridge.hookAllMethods(DrmManager::class.java, "isPermanentRights", object : XC_MethodHook() {
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            param.result = true
+                        }
+                    })
+                } catch (t: Throwable) {
+                    XposedBridge.log(t)
+                }
+
+                try {
+                    XposedBridge.hookAllMethods(DrmManager::class.java, "isSupportAd", object : XC_MethodHook() {
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            param.result = false
+                        }
+                    })
+                } catch (t: Throwable) {
+                    XposedBridge.log(t)
+                }
+                try {
+                    XposedBridge.hookAllMethods(DrmManager::class.java, "setSupportAd", object : XC_MethodHook() {
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            param.args[1] = false
+                        }
+                    })
+                } catch (t: Throwable) {
+                    XposedBridge.log(t)
+                }
+            }
+
             "com.android.thememanager" -> {
                 EzXHelperInit.setEzClassLoader(lpparam.classLoader)
                 try {
