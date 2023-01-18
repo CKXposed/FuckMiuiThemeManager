@@ -4,5 +4,6 @@
         <item>com.android.thememanager</item>
         <item>com.miui.personalassistant</item>
         <item>android</item>
+        <item>com.miui.home</item>
     </string-array>
 </resources>

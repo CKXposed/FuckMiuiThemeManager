@@ -91,6 +91,39 @@ class XposedInit : IXposedHookLoadPackage {
                     XposedBridge.log(t)
                 }
                 try {
+                    findMethod("com.android.thememanager.basemodule.resource.model.Resource") {
+                        name == "isAuthorizedResource"
+                    }.hookBefore {
+                        it.result = false
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook thememanager-isAuthorizedResource success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook thememanager-isAuthorizedResourcefailed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.android.thememanager.basemodule.resource.model.Resource") {
+                        name == "isProductBought"
+                    }.hookBefore {
+                        it.result = false
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook thememanager-isProductBought success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook thememanager-isProductBought failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.maml.widget.edit.MamlutilKt") {
+                        name == "themeManagerSupportPaidWidget"
+                    }.hookAfter {
+                        it.result = false
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook thememanager-themeManagerSupportPaidWidget success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook thememanager-themeManagerSupportPaidWidget failed!")
+                    XposedBridge.log(e)
+                }
+                try {
                     findMethod("com.android.thememanager.basemodule.ad.model.AdInfoResponse") {
                         name == "isAdValid" && parameterCount == 1
                     }.hookAfter {
@@ -108,6 +141,7 @@ class XposedInit : IXposedHookLoadPackage {
                 } catch (t: Throwable) {
                     XposedBridge.log(t)
                 }
+
                 hook(loadClass("com.android.thememanager.recommend.view.listview.viewholder.PureAdBannerViewHolder"))
                 hook(loadClass("com.android.thememanager.recommend.view.listview.viewholder.SelfFontItemAdViewHolder"))
                 hook(loadClass("com.android.thememanager.recommend.view.listview.viewholder.SelfRingtoneItemAdViewHolder"))
@@ -119,7 +153,7 @@ class XposedInit : IXposedHookLoadPackage {
                 try {
                     findMethod("com.miui.personalassistant.picker.business.detail.PickerDetailViewModel") {
                         name == "isCanDirectAddMaMl"
-                    }.hookBefore {
+                    }.hookAfter {
                         it.result = true
                     }
                     XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isCanDirectAddMaMl success!")
@@ -196,7 +230,7 @@ class XposedInit : IXposedHookLoadPackage {
                 try {
                     findMethod("com.miui.personalassistant.picker.business.detail.PickerDetailViewModel") {
                         name == "shouldCheckMamlBoughtState"
-                    }.hookBefore {
+                    }.hookAfter {
                         it.result = false
                     }
                     XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-shouldCheckMamlBoughtState success!")
@@ -207,7 +241,7 @@ class XposedInit : IXposedHookLoadPackage {
                 try {
                     findMethod("com.miui.personalassistant.picker.business.detail.PickerDetailViewModel") {
                         name == "isTargetPositionMamlPayAndDownloading"
-                    }.hookBefore {
+                    }.hookAfter {
                         it.result = false
                     }
                     XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isTargetPositionMamlPayAndDownloading success!")
@@ -218,7 +252,7 @@ class XposedInit : IXposedHookLoadPackage {
                 try {
                     findMethod("com.miui.personalassistant.picker.business.detail.PickerDetailViewModel") {
                         name == "checkIsIndependentProcessWidgetForPosition"
-                    }.hookBefore {
+                    }.hookAfter {
                         it.result = true
                     }
                     XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-checkIsIndependentProcessWidgetForPosition success!")
@@ -229,6 +263,32 @@ class XposedInit : IXposedHookLoadPackage {
 
             }
 
+            "com.miui.home" -> {
+                EzXHelperInit.setEzClassLoader(lpparam.classLoader)
+                //2023.01.18 @Weverses github
+                try {
+                    findMethod("com.miui.home.launcher.gadget.MaMlPendingHostView") {
+                        name == "isCanAutoStartDownload"
+                    }.hookAfter {
+                        it.result = true
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook home-isCanAutoStartDownload success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook home-isCanAutoStartDownload failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.maml.widget.edit.MamlutilKt") {
+                        name == "themeManagerSupportPaidWidget"
+                    }.hookAfter {
+                        it.result = false
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook home-themeManagerSupportPaidWidget success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook home-themeManagerSupportPaidWidget failed!")
+                    XposedBridge.log(e)
+                }
+            }
             else -> {
                 return
             }
