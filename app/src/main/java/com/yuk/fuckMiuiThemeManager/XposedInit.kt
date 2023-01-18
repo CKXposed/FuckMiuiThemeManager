@@ -4,13 +4,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
-import com.github.kyuubiran.ezxhelper.utils.findAllMethods
-import com.github.kyuubiran.ezxhelper.utils.findConstructor
-import com.github.kyuubiran.ezxhelper.utils.findMethod
-import com.github.kyuubiran.ezxhelper.utils.getObjectAs
-import com.github.kyuubiran.ezxhelper.utils.hookAfter
-import com.github.kyuubiran.ezxhelper.utils.loadClass
-import com.github.kyuubiran.ezxhelper.utils.putObject
+import com.github.kyuubiran.ezxhelper.utils.*
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -121,27 +115,118 @@ class XposedInit : IXposedHookLoadPackage {
 
             "com.miui.personalassistant" -> {
                 EzXHelperInit.setEzClassLoader(lpparam.classLoader)
+                //2023.01.18 @Weverses github
                 try {
-                    "com.miui.personalassistant.picker.business.detail.bean.PickerDetailResponse".findClass().hookAfterAllConstructors {
-                        it.thisObject.setBooleanField("isPay", true)
-                        it.thisObject.setBooleanField("isBought", true)
-                        it.thisObject.setBooleanField("isAuthorityPass", true)
-                        it.thisObject.setLongField("priceInCent", 0L)
-                        it.thisObject.setObjectField("authorityResult", DrmManager.DrmResult.DRM_SUCCESS)
+                    findMethod("com.miui.personalassistant.picker.business.detail.PickerDetailViewModel") {
+                        name == "isCanDirectAddMaMl"
+                    }.hookBefore {
+                        it.result = true
                     }
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isCanDirectAddMaMl success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isCanDirectAddMaMl failed!")
+                    XposedBridge.log(e)
                 }
                 try {
-                    ("com.miui.personalassistant.picker.business.detail.bean.PickerDetailResponseWrapper").findClass().hookAfterAllConstructors {
-                        it.thisObject.setBooleanField("isPay", true)
-                        it.thisObject.setBooleanField("isBought", true)
-                        it.thisObject.setBooleanField("isStartMaMlDownload", true)
-                        it.thisObject.setLongField("priceInCent", 0L)
+                    findMethod("com.miui.personalassistant.picker.business.detail.utils.PickerDetailDownloadManager\$Companion") {
+                        name == "isCanDownload"
+                    }.hookBefore {
+                        it.result = true
                     }
-                } catch (t: Throwable) {
-                    XposedBridge.log(t)
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isCanDownload success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isCanDownload failed!")
+                    XposedBridge.log(e)
                 }
+                try {
+                    findMethod("com.miui.personalassistant.picker.business.detail.utils.PickerDetailUtil") {
+                        name == "isCanAutoDownloadMaMl"
+                    }.hookBefore {
+                        it.result = true
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isCanAutoDownloadMaMl success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isCanAutoDownloadMaMl failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.personalassistant.picker.business.detail.bean.PickerDetailResponse") {
+                        name == "isPay"
+                    }.hookBefore {
+                        it.result = false
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isPay success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isPay failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.personalassistant.picker.business.detail.bean.PickerDetailResponse") {
+                        name == "isBought"
+                    }.hookBefore {
+                        it.result = true
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isBought success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isBought failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.personalassistant.picker.business.detail.bean.PickerDetailResponseWrapper") {
+                        name == "isPay"
+                    }.hookBefore {
+                        it.result = false
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isPay success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isPay failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.personalassistant.picker.business.detail.bean.PickerDetailResponseWrapper") {
+                        name == "isBought"
+                    }.hookBefore {
+                        it.result = true
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isBought success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isBought failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.personalassistant.picker.business.detail.PickerDetailViewModel") {
+                        name == "shouldCheckMamlBoughtState"
+                    }.hookBefore {
+                        it.result = false
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-shouldCheckMamlBoughtState success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-shouldCheckMamlBoughtState failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.personalassistant.picker.business.detail.PickerDetailViewModel") {
+                        name == "isTargetPositionMamlPayAndDownloading"
+                    }.hookBefore {
+                        it.result = false
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isTargetPositionMamlPayAndDownloading success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-isTargetPositionMamlPayAndDownloading failed!")
+                    XposedBridge.log(e)
+                }
+                try {
+                    findMethod("com.miui.personalassistant.picker.business.detail.PickerDetailViewModel") {
+                        name == "checkIsIndependentProcessWidgetForPosition"
+                    }.hookBefore {
+                        it.result = true
+                    }
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-checkIsIndependentProcessWidgetForPosition success!")
+                } catch (e: Throwable) {
+                    XposedBridge.log("FuckMiuiThemeManager: Hook personalassistant-checkIsIndependentProcessWidgetForPosition failed!")
+                    XposedBridge.log(e)
+                }
+
             }
 
             else -> {
