@@ -7,12 +7,14 @@ plugins {
 
 android {
     compileSdk = 33
+    buildToolsVersion = "33.0.2"
     defaultConfig {
         applicationId = "com.yuk.fuckMiuiThemeManager"
-        minSdk = 28
+        minSdk = 31
         targetSdk = 33
-        versionCode = 16
-        versionName = "1.6"
+        versionCode = 17
+        versionName = "1.7"
+        ndk.abiFilters += "arm64-v8a"
     }
     buildTypes {
         release {
@@ -22,8 +24,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     packagingOptions {
         resources {
@@ -45,5 +47,5 @@ android {
 dependencies {
     compileOnly("de.robv.android.xposed:api:82")
     implementation("com.github.kyuubiran:EzXHelper:1.0.3")
-    implementation(files("libs/miui-framework.jar"))
+    implementation("org.luckypray:DexKit:1.1.2")
 }

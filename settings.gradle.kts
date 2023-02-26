@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven("https://api.xposed.info/")
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -9,10 +10,10 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven("https://api.xposed.info/")
         google()
         mavenCentral()
-        maven("https://jitpack.io")
-        maven("https://api.xposed.info")
+        gradlePluginPortal()
     }
 }
 
