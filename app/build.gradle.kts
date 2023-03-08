@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 plugins {
@@ -8,8 +10,9 @@ plugins {
 android {
     compileSdk = 33
     buildToolsVersion = "33.0.2"
+    namespace = "com.yuk.fuckMiuiThemeManager"
     defaultConfig {
-        applicationId = "com.yuk.fuckMiuiThemeManager"
+        applicationId = namespace
         minSdk = 31
         targetSdk = 33
         versionCode = 17
@@ -47,5 +50,5 @@ android {
 dependencies {
     compileOnly("de.robv.android.xposed:api:82")
     implementation("com.github.kyuubiran:EzXHelper:1.0.3")
-    implementation("org.luckypray:DexKit:1.1.2")
+    implementation("org.luckypray:DexKit:1.1.3")
 }
